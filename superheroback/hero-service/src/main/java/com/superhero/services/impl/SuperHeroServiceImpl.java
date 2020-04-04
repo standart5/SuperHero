@@ -50,14 +50,15 @@ public class SuperHeroServiceImpl {
 
     @PostConstruct
     public void init() throws JsonProcessingException {
-        String result = getHeroFromExternalApi();
-        Hero hero = convertToHero(result);
-        saveInDB(hero);
-        log.error(hero);
+        for(int i=0;i<25;i++){
+            String result = getHeroFromExternalApi(i+1);
+            Hero hero = convertToHero(result);
+            saveInDB(hero);
+        }
     }
 
-    public String getHeroFromExternalApi(){
-        final String uri = apiUrl+"/"+apiAccessToken+"/69";
+    public String getHeroFromExternalApi(int id){
+        final String uri = apiUrl+"/"+apiAccessToken+"/"+id;
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(uri, String.class);
     }
@@ -70,8 +71,8 @@ public class SuperHeroServiceImpl {
         biography.setAliases(getAliases(jsonNode));
         return Hero.builder()
                 .externalId(jsonNode.get("id").asLong())
-                .name(jsonNode.get("name").toString())
-                .image(jsonNode.get("image").get("url").toString())
+                .name(jsonNode.get("name").asText())
+                .image(jsonNode.get("image").get("url").asText())
                 .biography(biography)
                 .powerstats(powerstats)
                 .build();
