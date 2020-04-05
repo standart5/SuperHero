@@ -1,9 +1,8 @@
-package com.superhero.services.impl;
+package com.superhero.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.superhero.persistence.dao.repository.AliasesRepository;
 import com.superhero.persistence.dao.repository.BiographyRepository;
 import com.superhero.persistence.dao.repository.HeroRepository;
@@ -21,13 +20,12 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @CommonsLog
-public class SuperHeroServiceImpl {
+public class SuperHeroService {
 
     @Value(value = "${super-hero-api-url}")
     private String apiUrl;
@@ -46,7 +44,6 @@ public class SuperHeroServiceImpl {
 
     @Autowired
     AliasesRepository aliasesRepository;
-
 
     @PostConstruct
     public void init() throws JsonProcessingException {

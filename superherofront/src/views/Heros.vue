@@ -23,12 +23,19 @@ export default {
     }
   },
   beforeMount(){
-    this.getHeroes();
+    this.$eventBus.$on('saerch',this.onSearch)
+    this.getHeroes("");
+  },
+  beforeDestroy(){
+    this.$eventBus.$of('saerch',this.onSearch)
   },
   methods:{
-    getHeroes(){
-      const baseURI = 'http://localhost:8080/hero/getAllHeroes'
-      this.$http.get(baseURI)
+    onSearch(value){
+      this.getHeroes(value)
+    },
+    getHeroes(value){
+      const baseURI = 'http://localhost:8080/hero/filterHeroes'
+      this.$http.get(baseURI, {params: {value: value}})
       .then((result) => {
         this.heroes = result.data
       })
