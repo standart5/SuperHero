@@ -1,31 +1,35 @@
 <template>
   <v-container>
     <v-card class="mx-auto">
-      <v-img class="white--text align-end" height="200px" :src="hero.image"></v-img>
+      <v-list-item three-line>
+        <v-list-item-avatar tile size="130" color="grey">
+          <v-img :src="hero.image"></v-img>
+        </v-list-item-avatar>
+        <v-list-item-content>
+            <v-layout row wrap>
+              <v-flex xs12>
+                <v-card-subtitle class="py-0">Intelligence: {{hero.powerstats['intelligence']}}</v-card-subtitle>
+              </v-flex>
+              <v-flex xs12>
+                <v-card-subtitle class="py-0">Strength: {{hero.powerstats['strength']}}</v-card-subtitle>
+              </v-flex>
+              <v-flex xs12>
+                <v-card-subtitle class="py-0">Speed: {{hero.powerstats['speed']}}</v-card-subtitle>
+              </v-flex>
+              <v-flex xs12>
+                <v-card-subtitle class="py-0">Durability: {{hero.powerstats['durability']}}</v-card-subtitle>
+              </v-flex>
+              <v-flex xs12>
+                <v-card-subtitle class="py-0">Power: {{hero.powerstats['power']}}</v-card-subtitle>
+              </v-flex>
+              <v-flex xs12>
+                <v-card-subtitle class="py-0">Combat: {{hero.powerstats['combat']}}</v-card-subtitle>
+              </v-flex>
+            </v-layout>
+        </v-list-item-content>
+      </v-list-item>
       <v-card-title>{{hero.name}}</v-card-title>
-      <v-card-text class="text--primary">
-        <v-divider class="my-4"></v-divider>
-        <v-layout row wrap>
-          <v-flex xs6>
-            <v-card-subtitle class="py-0">Intelligence: {{hero.powerstats['intelligence']}}</v-card-subtitle>
-          </v-flex>
-          <v-flex xs6>
-            <v-card-subtitle class="py-0">Strength: {{hero.powerstats['strength']}}</v-card-subtitle>
-          </v-flex>
-          <v-flex xs6>
-            <v-card-subtitle class="py-0">Speed: {{hero.powerstats['speed']}}</v-card-subtitle>
-          </v-flex>
-          <v-flex xs6>
-            <v-card-subtitle class="py-0">Durability: {{hero.powerstats['durability']}}</v-card-subtitle>
-          </v-flex>
-          <v-flex xs6>
-            <v-card-subtitle class="py-0">Power: {{hero.powerstats['power']}}</v-card-subtitle>
-          </v-flex>
-          <v-flex xs6>
-            <v-card-subtitle class="py-0">Combat: {{hero.powerstats['combat']}}</v-card-subtitle>
-          </v-flex>
-        </v-layout>
-        <v-divider class="my-4"></v-divider>
+      <v-card-text class="text--primary">        
         <v-layout row wrap>
           <v-flex xs12>
             <v-card-subtitle class="py-0">Full name: {{hero.biography['full-name']}}</v-card-subtitle>
@@ -42,7 +46,7 @@
           <v-flex xs6>
             <v-card-subtitle class="py-0">First appearance: {{hero.biography['first-appearance']}}</v-card-subtitle>
           </v-flex>
-      </v-layout>        
+        </v-layout>        
       </v-card-text>
       <v-card-actions></v-card-actions>
     </v-card>
