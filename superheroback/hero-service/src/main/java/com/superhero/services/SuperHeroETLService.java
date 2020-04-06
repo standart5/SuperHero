@@ -3,14 +3,13 @@ package com.superhero.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.superhero.persistence.dao.repository.AliasesRepository;
 import com.superhero.persistence.dao.repository.BiographyRepository;
 import com.superhero.persistence.dao.repository.HeroRepository;
 import com.superhero.persistence.dao.repository.PowerstatsRepository;
-import com.superhero.persistence.domain.Aliases;
 import com.superhero.persistence.domain.Biography;
 import com.superhero.persistence.domain.Hero;
 import com.superhero.persistence.domain.Powerstats;
+import com.superhero.utils.HeroIdUtil;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,13 +18,11 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
-import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @CommonsLog
-public class SuperHeroService {
+public class SuperHeroETLService {
 
     @Value(value = "${super-hero-api-url}")
     private String apiUrl;
@@ -43,48 +40,51 @@ public class SuperHeroService {
     BiographyRepository biographyRepository;
 
     @Autowired
-    AliasesRepository aliasesRepository;
+    HeroIdUtil heroIdUtil;
 
     @PostConstruct
-    public void init() throws JsonProcessingException {
-        for(int i=0;i<25;i++){
-            String result = getHeroFromExternalApi(i+1);
-            Hero hero = convertToHero(result);
-            saveInDB(hero);
-        }
+    public void init(){
+        this.runInNewThread();
     }
 
-    public String getHeroFromExternalApi(int id){
+    private void runInNewThread(){
+        Runnable task = () -> {
+            Set<Integer> ids = heroIdUtil.getRandomIds();
+            log.info("start Extract Transfer and Load Process  for super heroes by ids: "+ids);
+            for(Integer id : ids){
+                try {
+                    String result = this.getHeroFromExternalApi(id);
+                    Hero hero = this.convertToHero(result);
+                    this.saveInDB(hero);
+                } catch (JsonProcessingException e) {
+                    log.error("Can not download super heroes");
+                }
+            }
+            log.info("Stop ETL process for super heroes");
+        };
+        new Thread(task).start();
+    }
+
+    private String getHeroFromExternalApi(int id){
         final String uri = apiUrl+"/"+apiAccessToken+"/"+id;
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(uri, String.class);
     }
 
-    public Hero convertToHero(String value) throws JsonProcessingException {
+    private Hero convertToHero(String value) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(value);
-        Powerstats powerstats = objectMapper.readValue(jsonNode.get("powerstats").toString(),Powerstats.class);
-        Biography biography = objectMapper.readValue(jsonNode.get("biography").toString(),Biography.class);
-        biography.setAliases(getAliases(jsonNode));
         return Hero.builder()
                 .externalId(jsonNode.get("id").asLong())
                 .name(jsonNode.get("name").asText())
                 .image(jsonNode.get("image").get("url").asText())
-                .biography(biography)
-                .powerstats(powerstats)
+                .biography(objectMapper.readValue(jsonNode.get("biography").toString(),Biography.class))
+                .powerstats(objectMapper.readValue(jsonNode.get("powerstats").toString(),Powerstats.class))
                 .build();
     }
 
-    public Set<Aliases> getAliases(JsonNode jsonNode){
-        String aliases = jsonNode.get("biography").get("aliases").toString();
-        return Arrays.asList(aliases.replace("[","").replace("]","").split(","))
-                .parallelStream()
-                .map(v->Aliases.builder().value(v).build())
-                .collect(Collectors.toSet());
-    }
-
     @Transactional
-    public Hero saveInDB(Hero hero){
+    private Hero saveInDB(Hero hero){
         Hero oldHero = heroRepository.findByExternalId(hero.getExternalId());
         if(oldHero!=null){
             hero.setId(oldHero.getId());

@@ -51,7 +51,14 @@
           </v-flex>
         </v-layout>        
       </v-card-text>
-      <v-card-actions></v-card-actions>
+       <v-card-subtitle class="py-0 font-weight-black">Aliases:</v-card-subtitle>
+      <v-card-text class="pt-0 text--primary">        
+        <v-layout row wrap>
+          <v-flex xs12 py-0 v-for="(alias,i) in hero.biography['aliases']" :key="i">
+              <v-card-subtitle class="py-0">{{alias}}</v-card-subtitle>
+          </v-flex>
+        </v-layout>        
+      </v-card-text>
     </v-card>
   </v-container>
 </template>
@@ -62,7 +69,13 @@
     props:{
       hero:{type:Object},
     },
-     data () {
+    filters:{
+      aliases: function(val){
+          console.log(val)
+          return val;
+      }
+    },
+    data () {
       return {
         tab: null,
         items: [

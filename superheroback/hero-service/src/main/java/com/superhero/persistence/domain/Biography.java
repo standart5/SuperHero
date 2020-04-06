@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -41,8 +42,7 @@ public class Biography {
     @Column(name = "alignment")
     private String alignment;
 
-    @OneToMany(mappedBy = "biography",cascade = CascadeType.ALL,orphanRemoval = true)
-    @JsonIgnore
-    private Set<Aliases> aliases;
+    @ElementCollection
+    private List<String> aliases;
 
 }

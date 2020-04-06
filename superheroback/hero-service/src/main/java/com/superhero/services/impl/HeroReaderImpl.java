@@ -5,6 +5,7 @@ import com.superhero.persistence.domain.Hero;
 import com.superhero.services.api.HeroReader;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class HeroReaderImpl implements HeroReader {
 
     @Override
     public List<Hero> filterHeroes(String value) {
-        return heroRepository.findAll(globalHeroFilters(value));
+        return heroRepository.findAll(globalHeroFilters(value), Sort.by(Sort.Direction.ASC,"name"));
     }
 
     private Specification<Hero> globalHeroFilters(String value){
@@ -48,7 +49,7 @@ public class HeroReaderImpl implements HeroReader {
             predicates.add(cb.like(cb.lower(root.get("biography").get("alterEgos")),criteriaValue));
             predicates.add(cb.like(cb.lower(root.get("biography").get("firstAppearance")),criteriaValue));
             predicates.add(cb.like(cb.lower(root.get("biography").get("publisher")),criteriaValue));
-           // predicates.add(cb.like(cb.lower(root.get("biography").get("alignment")),criteriaValue));
+            predicates.add(cb.like(cb.lower(root.get("biography").get("alignment")),criteriaValue));
             return cb.or(predicates.toArray(new Predicate[predicates.size()]));
         };
     }
