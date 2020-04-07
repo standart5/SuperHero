@@ -1,5 +1,6 @@
 package com.superhero.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.superhero.persistence.dao.repository.BiographyRepository;
@@ -18,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @CommonsLog
@@ -46,6 +48,23 @@ public class SuperHeroETLService {
         this.runInNewThread();
     }
 
+    private void runInMainThread(){
+        Set<Integer> ids = superHeroUtil.getRandomIds();
+        log.info("start Extract Transfer and Load Process  for super heroes by ids: "+ids);
+        for(Integer id : ids){
+            try {
+                String result = this.getHeroFromExternalApi(id);
+                Hero hero = this.convertToHero(result);
+                this.saveInDB(hero);
+            } catch (Exception e) {
+                log.error("Can not download super heroes - "+e.getMessage());
+                e.printStackTrace();
+                break;
+            }
+        }
+        log.info("Stop ETL process for super heroes");
+    }
+
     private void runInNewThread(){
         Runnable task = () -> {
             Set<Integer> ids = superHeroUtil.getRandomIds();
@@ -66,14 +85,15 @@ public class SuperHeroETLService {
         new Thread(task).start();
     }
 
-    private String getHeroFromExternalApi(int id){
+    private String getHeroFromExternalApi(int id) throws Exception {
         final String uri = apiUrl+"/"+apiAccessToken+"/"+id;
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(uri, String.class);
+        String response =  restTemplate.getForObject(uri, String.class);
+        superHeroUtil.checkResponse(response);
+        return response;
     }
 
-    private Hero convertToHero(String value) throws Exception {
-        superHeroUtil.checkResponse(value);
+    private Hero convertToHero(String value) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(value);
         return Hero.builder()
