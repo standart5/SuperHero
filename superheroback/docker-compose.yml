@@ -10,7 +10,7 @@ services:
         build: ./hero-service
         environment:
             - REGISTRY_HOST=discovery-service
-            - SUPER_HERO_API_ACCESS_TOKEN=4255357494489968
+            - SUPER_HERO_API_ACCESS_TOKEN=
         ports:
             - "8090:8090" 
         depends_on:
