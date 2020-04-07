@@ -71,7 +71,6 @@
     },
     filters:{
       aliases: function(val){
-          console.log(val)
           return val;
       }
     },
