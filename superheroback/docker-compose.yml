@@ -1,0 +1,27 @@
+version: '2.4'
+
+services:
+    discovery-service:
+        build: ./discovery-service
+        ports:
+            - "8761:8761"  
+      
+    hero-service:
+        build: ./hero-service
+        environment:
+            - REGISTRY_HOST=discovery-service
+            - SUPER_HERO_API_ACCESS_TOKEN=4255357494489968
+        ports:
+            - "8090:8090" 
+        depends_on:
+            - discovery-service
+            
+    api-gateway:
+        build: ./api-gateway
+        environment:
+            - REGISTRY_HOST=discovery-service
+        ports:
+            - "8080:8080"
+        depends_on:
+            - discovery-service
+            - hero-service
