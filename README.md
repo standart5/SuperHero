@@ -21,3 +21,8 @@ Frontend - superherofront
 
    **superheroback** and ***superherofront*** have own `docker-compose.yml`, and you can run it separately, but remember to fill access token parameter in `docker-compose.yml` in ***superheroback*** directory
    for downloading ***SuperHeroes*** from ***SuperHeroApi***
+   
+   
+   `Stop ETL process for super heroes` - This log, means, that all heroes are downloaded from SuperHeroApi to local DB.
+   
+   
